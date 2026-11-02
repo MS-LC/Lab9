@@ -1,402 +1,68 @@
-COMPUTER NETWORKS — EXAM STUDY GUIDE
 
-Dordal, 2nd ed. Ch. 1–25. One page of facts, one page of procedures.
-
-------------------------------------------------------------------------------
-
-NUMBERS TO KNOW COLD
-
-  Item                                    Value
-  --------------------------------------- -----------------------------------
-  Ethernet min frame / payload            64 B / 46 B
-  Ethernet max frame / payload            1518 B / 1500 B
-  Ethernet slot time                      512 bit times (51.2 µs @ 10 Mbps)
-  IPv4 header / TCP header / UDP header   20 B / 20 B / 8 B
-  IPv6 fixed header                       40 B
-  Typical MSS                             1460 B (1500 − 40)
-  TIME_WAIT                               2 × MSL
-  RTT weights                             α = 1/8, β = 1/4
-  RTO                                     SRTT + 4·RTTVAR
-  Classic initial cwnd                    1 MSS (modern: 10)
-  802.11 ACK wait                         SIFS (data waits DIFS + backoff)
-
-Ports: DNS 53 · DHCP 67/68 · TFTP 69 · SNMP 161/162 · BGP 179 · RIP 520
-
-IP protocol: 1 ICMP · 6 TCP · 17 UDP · 89 OSPF
-
-------------------------------------------------------------------------------
-
-LAYERS
-
-  Layer       Job          Examples
-  ----------- ------------ -----------------
-  App         meaning      HTTP, DNS, SMTP
-  Transport   end-to-end   TCP, UDP
-  Network     routing      IP, ICMP, BGP
-  Link        one LAN      Ethernet, Wi-Fi
-  Physical    bits         1000BASE-T
-
-ARP = L2/L3 boundary (IP→MAC, same LAN only).
-
-------------------------------------------------------------------------------
-
+NETWORKS CHEAT SHEET - CORE (Ch. 1-25)
+================================================================
 FORMULAS
-
-    d_total = L/C + dist/v + queue + proc
-    BDP     = C × RTT
-    U_s&w   = 1/(1 + 2a),  a = T_prop/T_trans
-    Thru    = min(C, W·MSS/RTT)      need W ≥ BDP/MSS
-    hosts   = 2^(32−n) − 2
-    offset  = byte_offset / 8
-    RTO     = SRTT + 4·RTTVAR
-    cwnd    ≈ sqrt(3/(2p))
-    Thru    ≈ 1.22·MSS/(RTT·√p)
-    delay   ≤ β/(C − r)              token bucket, C > r
-    L       = λW                     Little
-
-------------------------------------------------------------------------------
-
+  d = L/C + dist/v + queue + proc        BDP = C x RTT
+  U_s&w = 1/(1+2a), a = Tp/Tt            hosts = 2^(32-n) - 2
+  Thru = min(C, W x MSS/RTT), need W >= BDP/MSS
+  RTO = SRTT + 4 x RTTVAR                frag offset = bytes/8
+  cwnd ~ sqrt(3/2p)     Thru ~ 1.22 x MSS/(RTT x sqrt(p))
+  token delay <= beta/(C-r)              Little: L = lambda W
+NUMBERS: min frame 64 B (payload 46) | max 1518/1500 | slot 512 bit-times
+  IPv4 20 B | TCP 20 B | UDP 8 B | IPv6 40 B | MSS 1460 | TIME_WAIT 2 MSL
+  alpha = 1/8, beta = 1/4 | cwnd0 = 1 MSS (modern 10)
+PORTS 53 DNS | 67/68 DHCP | 69 TFTP | 161/162 SNMP | 179 BGP | 520 RIP
+PROTO 1 ICMP | 6 TCP | 17 UDP | 89 OSPF
+LAYERS: App (HTTP/DNS) > Transport (TCP/UDP) > Network (IP/ICMP/BGP)
+  > Link (Ethernet/Wi-Fi) > Physical. ARP = L2/L3 boundary.
 ETHERNET / LAN
-
--   CSMA/CD: sense → send → collision → abort → backoff [0, 2^min(n,10)−1]
-    slots.
--   64 B minimum = sender still transmitting when worst-case collision
-    returns.
--   Switch: learn src MAC→port; forward known unicast; flood
-    unknown/broadcast; age out.
--   Switches split collision domains; VLANs split broadcast domains.
--   STP: root bridge (lowest ID) → root ports → block redundant links. Slow;
-    RSTP faster.
--   802.1Q: 12-bit VLAN tag; trunk = tagged.
--   Wi-Fi: CSMA/CA (can't detect collisions while sending) + ACK; hidden
-    terminal → RTS/CTS.
-
-------------------------------------------------------------------------------
-
+  CSMA/CD: sense > send > collision > abort > backoff [0, 2^min(n,10)-1]
+  slots. 64 B min so the sender still transmits at worst-case collision.
+  Switch: learn src>port, forward known, flood unknown/broadcast, age out;
+  splits collision, not broadcast, domains. VLAN 12-bit tag; trunk tagged.
+  STP: root = lowest ID, block redundant links.
+  Wi-Fi: CSMA/CA (no collision detect) + ACK after SIFS; RTS/CTS = hidden.
 IP
-
-Header:
-Ver | IHL | DSCP/ECN | Len | ID | Flags | FragOff | TTL | Proto | Cksum | Src | Dst
-
--   TTL decremented per hop (traceroute). Header checksum covers header only.
-
-Private: 10/8, 172.16/12, 192.168/16 · Loopback 127/8 · Link-local 169.254/16
-· Multicast 224/4
-
-Fragmentation: offset in 8-byte units; MF=1 except last; reassemble only at
-destination; DF → ICMP → PMTUD.
-
-NAT: rewrites IP:port, keeps table; breaks inbound connections/IPsec AH.
-
-Companions:
-
--   DNS: name→IP, UDP/53, cache+TTL, root→TLD→authoritative.
--   ARP: IP→MAC in LAN, broadcast ask / unicast reply, spoofable.
--   DHCP: DORA (Discover, Offer, Request, Ack).
--   ICMP: errors + ping/traceroute, no ports.
-
-IPv6: 128-bit, 40-B header, no checksum, no router fragmentation; NDP replaces
-ARP; SLAAC.
-
-------------------------------------------------------------------------------
-
+  Header: Ver|IHL|DSCP|Len|ID|Flags|Off|TTL|Proto|Cksum|Src|Dst.
+  TTL per hop; header checksum only; longest-prefix match.
+  Private 10/8, 172.16/12, 192.168/16 | loop 127/8 | link-local 169.254/16
+  | multicast 224/4.
+  Frag: offset in 8-byte units, MF=0 on last, reassemble at destination;
+  DF > ICMP > PMTUD. NAT rewrites IP:port. ARP: IP>MAC in LAN. DHCP=DORA.
+  ICMP = errors, no ports. DNS UDP/53.
+  IPv6: 128-bit, 40-B header, no checksum, no router frag; NDP, SLAAC.
 ROUTING
-
-                Distance vector      Link state
-  ------------- -------------------- ----------------
-  Knows         neighbors' vectors   full topology
-  Algorithm     Bellman-Ford         Dijkstra
-  Convergence   slow, loops          fast, no loops
-  Example       RIP (max 15)         OSPF, IS-IS
-
-Count-to-infinity fixes: split horizon, poisoned reverse, triggered updates,
-hold-down, path vector.
-
-CIDR: longest-prefix match; aggregate contiguous blocks; provider-based →
-renumbering.
-
-BGP (TCP/179, path vector):
-
-1.  highest LOCAL_PREF
-2.  shortest AS_PATH
-3.  lowest ORIGIN
-4.  lowest MED
-5.  eBGP > iBGP
-6.  lowest IGP cost to next hop
-7.  lowest router ID
-
-AS_PATH = loop detection. Valley-free = no free transit. No origin auth →
-hijacks; RPKI/ROV.
-
-------------------------------------------------------------------------------
-
+  DV: Bellman-Ford D_x(y) = min(c + D_v(y)); count-to-infinity >
+  split horizon, poisoned reverse, triggered updates, path vector.
+  LS: flood LSAs > topology > Dijkstra; fast, loop-free. ECMP hashes.
+  CIDR: any prefix, longest match; aggregate contiguous blocks.
+  BGP TCP/179: LOCAL_PREF > AS_PATH > ORIGIN > MED > eBGP>iBGP >
+  IGP cost > router ID. AS_PATH loop detect; valley-free; anycast.
 TCP
-
-Header:
-Sport | Dport | Seq | Ack | Offset | Flags | Window | Cksum | Urgent | Options
-Flags: URG ACK PSH RST SYN FIN. S# COMPUTER NETWORKS — EXAM CHEAT SHEET
-
-*Dordal, 2nd ed. Ch. 1–25. One page of facts, one page of procedures.*
-
----
-
-## NUMBERS TO KNOW COLD
-
-| Item | Value |
-|---|---|
-| Ethernet min frame / payload | 64 B / 46 B |
-| Ethernet max frame / payload | 1518 B / 1500 B |
-| Ethernet slot time | 512 bit times (51.2 µs @ 10 Mbps) |
-| IPv4 header / TCP header / UDP header | 20 B / 20 B / 8 B |
-| IPv6 fixed header | 40 B |
-| Typical MSS | 1460 B (1500 − 40) |
-| TIME_WAIT | 2 × MSL |
-| RTT weights | α = 1/8, β = 1/4 |
-| RTO | SRTT + 4·RTTVAR |
-| Classic initial cwnd | 1 MSS (modern: 10) |
-| 802.11 ACK wait | SIFS (data waits DIFS + backoff) |
-
-**Ports:** DNS 53 · DHCP 67/68 · TFTP 69 · SNMP 161/162 · BGP 179 · RIP 520
-
-**IP protocol:** 1 ICMP · 6 TCP · 17 UDP · 89 OSPF
-
----
-
-## LAYERS
-
-| Layer | Job | Examples |
-|---|---|---|
-| App | meaning | HTTP, DNS, SMTP |
-| Transport | end-to-end | TCP, UDP |
-| Network | routing | IP, ICMP, BGP |
-| Link | one LAN | Ethernet, Wi-Fi |
-| Physical | bits | 1000BASE-T |
-
-ARP = L2/L3 boundary (IP→MAC, same LAN only).
-
----
-
-## FORMULAS
-
-```
-d_total = L/C + dist/v + queue + proc
-BDP     = C × RTT
-U_s&w   = 1/(1 + 2a),  a = T_prop/T_trans
-Thru    = min(C, W·MSS/RTT)      need W ≥ BDP/MSS
-hosts   = 2^(32−n) − 2
-offset  = byte_offset / 8
-RTO     = SRTT + 4·RTTVAR
-cwnd    ≈ sqrt(3/(2p))
-Thru    ≈ 1.22·MSS/(RTT·√p)
-delay   ≤ β/(C − r)              token bucket, C > r
-L       = λW                     Little
-```
-
----
-
-## ETHERNET / LAN
-
-- **CSMA/CD:** sense → send → collision → abort → backoff `[0, 2^min(n,10)−1]` slots.
-- **64 B minimum** = sender still transmitting when worst-case collision returns.
-- **Switch:** learn src MAC→port; forward known unicast; flood unknown/broadcast; age out.
-- Switches split **collision** domains; **VLANs** split broadcast domains.
-- **STP:** root bridge (lowest ID) → root ports → block redundant links. Slow; RSTP faster.
-- **802.1Q:** 12-bit VLAN tag; trunk = tagged.
-- **Wi-Fi:** CSMA/CA (can't detect collisions while sending) + ACK; hidden terminal → RTS/CTS.
-
----
-
-## IP
-
-**Header:** `Ver | IHL | DSCP/ECN | Len | ID | Flags | FragOff | TTL | Proto | Cksum | Src | Dst`
-- TTL decremented per hop (traceroute). Header checksum covers header only.
-
-**Private:** 10/8, 172.16/12, 192.168/16 · **Loopback** 127/8 · **Link-local** 169.254/16 · **Multicast** 224/4
-
-**Fragmentation:** offset in 8-byte units; MF=1 except last; reassemble only at destination; DF → ICMP → PMTUD.
-
-**NAT:** rewrites IP:port, keeps table; breaks inbound connections/IPsec AH.
-
-**Companions:**
-- DNS: name→IP, UDP/53, cache+TTL, root→TLD→authoritative.
-- ARP: IP→MAC in LAN, broadcast ask / unicast reply, spoofable.
-- DHCP: **DORA** (Discover, Offer, Request, Ack).
-- ICMP: errors + ping/traceroute, no ports.
-
-**IPv6:** 128-bit, 40-B header, **no checksum, no router fragmentation**; NDP replaces ARP; SLAAC.
-
----
-
-## ROUTING
-
-| | Distance vector | Link state |
-|---|---|---|
-| Knows | neighbors' vectors | full topology |
-| Algorithm | Bellman-Ford | Dijkstra |
-| Convergence | slow, loops | fast, no loops |
-| Example | RIP (max 15) | OSPF, IS-IS |
-
-**Count-to-infinity fixes:** split horizon, poisoned reverse, triggered updates, hold-down, path vector.
-
-**CIDR:** longest-prefix match; aggregate contiguous blocks; provider-based → renumbering.
-
-**BGP (TCP/179, path vector):**
-1. highest LOCAL_PREF
-2. shortest AS_PATH
-3. lowest ORIGIN
-4. lowest MED
-5. eBGP > iBGP
-6. lowest IGP cost to next hop
-7. lowest router ID
-
-AS_PATH = loop detection. Valley-free = no free transit. No origin auth → hijacks; RPKI/ROV.
-
----
-
-## TCP
-
-**Header:** `Sport | Dport | Seq | Ack | Offset | Flags | Window | Cksum | Urgent | Options`
-Flags: URG ACK PSH RST SYN FIN. Seq counts **bytes**. Window = flow control.
-
-**Handshake:** SYN(x) → SYN(y),ACK(x+1) → ACK(y+1). ISN random.
-
-**States:** LISTEN → SYN_SENT/SYN_RCVD → ESTABLISHED → FIN_WAIT_1/2, CLOSE_WAIT, LAST_ACK, TIME_WAIT → CLOSED.
-
-**Window:** `min(cwnd, rwnd)`.
-**Nagle:** one small segment until ACKed (bad with delayed ACK → TCP_NODELAY).
-**Silly window:** Clark (receiver waits) + Nagle (sender waits) + persist timer.
-**Karn:** no RTT sample on retransmits; double RTO on timeout.
-
----
-
-## RENO — THE FOUR RULES
-
-| Event | ssthresh | cwnd |
-|---|---|---|
-| cwnd < ssthresh | — | +1 MSS/ACK (doubles/RTT) |
-| cwnd ≥ ssthresh | — | +1 MSS/RTT |
-| Timeout | cwnd/2 | 1 |
-| 3 dup ACKs (Tahoe) | cwnd/2 | 1 |
-| 3 dup ACKs (Reno) | cwnd/2 | ssthresh + 3, inflate per dup; new ACK → ssthresh |
-
-**NewReno:** partial ACK → retransmit next hole. **SACK:** report blocks, retransmit holes only.
-
-**Trace:** 1 → 2 → 4 → 8 → 16 (4 RTTs) → CA 17, 18…
-Timeout @24 → ssthresh 12, cwnd 1 → 2,4,8,12 → CA.
-3 dup @20 → ssthresh 10, cwnd 13 → new ACK → 10.
-
----
-
-## CONGESTION / QOS
-
-- Equal RTT flows → equal shares; Reno biased to **1/RTT**.
-- **RED:** avg queue length; min_th/max_th/max_p; early drop/mark; ECN; avoids global sync.
-- **Token bucket:** rate r, depth β; burst ≤ β; long-term ≤ r; GCRA `TAT ← max(now,TAT)+L/r`.
-- **WFQ:** per-flow finish-time order; weights = shares; Parekh–Gallager delay bound.
-- **IntServ/RSVP:** per-flow state, hard guarantees, poor scaling.
-- **DiffServ:** DSCP at edge, PHB in core (EF voice, AF drop precedence), scales.
-- **MPLS:** labels, TE, L3VPN.
-
-**Newer TCP:** Vegas (delay) · Westwood (bw estimate) · Compound (loss+delay) · Hybla (RTT-normalized) · DCTCP (ECN fraction) · CUBIC (cubic time, Linux default) · BBR (bw + min RTT, loss-insensitive).
-
----
-
-## PROCEDURES
-
-**Subnet:** mask → AND = network; broadcast = host bits all 1; usable = 2^h − 2.
-**Fragment:** max payload = MTU − 20; offsets = cumulative/8; last MF=0.
-**CRC:** append r zeros → divide by G → remainder → append.
-**Dijkstra:** pick min unvisited → relax neighbors → repeat.
-**Reno trace:** mark slow start vs CA at ssthresh; on loss apply table; redraw sawtooth.
-
----
-
-## TRAPS
-
-1. Propagation ≠ transmission.
-2. `min(cwnd, rwnd)`.
-3. Fragment offset in 8-byte units.
-4. Slow start is exponential.
-5. Timeout → 1; 3 dup → halve.
-6. ssthresh = half of **current** cwnd.
-7. TCP counts bytes.
-8. BGP = policy first.
-9. Count-to-infinity = DV only.
-10. IPv6: no checksum, no router frag.
-11. RED ≠ scheduler.
-12. Token bucket bounds burst, not delay.eq counts bytes. Window = flow control.
-
-Handshake: SYN(x) → SYN(y),ACK(x+1) → ACK(y+1). ISN random.
-
-States: LISTEN → SYN_SENT/SYN_RCVD → ESTABLISHED → FIN_WAIT_1/2, CLOSE_WAIT,
-LAST_ACK, TIME_WAIT → CLOSED.
-
-Window: min(cwnd, rwnd). Nagle: one small segment until ACKed (bad with
-delayed ACK → TCP_NODELAY). Silly window: Clark (receiver waits) + Nagle
-(sender waits) + persist timer. Karn: no RTT sample on retransmits; double RTO
-on timeout.
-
-------------------------------------------------------------------------------
-
-RENO — THE FOUR RULES
-
-  Event                ssthresh   cwnd
-  -------------------- ---------- ---------------------------------------------------
-  cwnd < ssthresh      —          +1 MSS/ACK (doubles/RTT)
-  cwnd ≥ ssthresh      —          +1 MSS/RTT
-  Timeout              cwnd/2     1
-  3 dup ACKs (Tahoe)   cwnd/2     1
-  3 dup ACKs (Reno)    cwnd/2     ssthresh + 3, inflate per dup; new ACK → ssthresh
-
-NewReno: partial ACK → retransmit next hole. SACK: report blocks, retransmit
-holes only.
-
-Trace: 1 → 2 → 4 → 8 → 16 (4 RTTs) → CA 17, 18… Timeout @24 → ssthresh 12,
-cwnd 1 → 2,4,8,12 → CA. 3 dup @20 → ssthresh 10, cwnd 13 → new ACK → 10.
-
-------------------------------------------------------------------------------
-
+  Header 20 B: sport|dport|seq|ack|off|flags|win|cksum|urg|opts.
+  Seq counts bytes. Flags URG ACK PSH RST SYN FIN. SYN > SYN-ACK > ACK.
+  Random ISN. TIME_WAIT 2 MSL. Window = min(cwnd, rwnd).
+  Nagle: 1 small unacked seg; delayed ACK ~200 ms; silly window:
+  Clark + Nagle + persist. Karn: no RTT on retx; double RTO.
+RENO
+  cwnd < ssthresh    +1 MSS/ACK (doubles per RTT)
+  cwnd >= ssthresh   +1 MSS/RTT
+  timeout            ssthresh = cwnd/2, cwnd = 1
+  3 dup (Tahoe)      ssthresh = cwnd/2, cwnd = 1
+  3 dup (Reno)       ssthresh = cwnd/2, cwnd = ssthresh+3, inflate;
+                     new ACK > cwnd = ssthresh
+  Trace: 1>2>4>8>16>17 | timeout@24 > ssth 12, cwnd 1 > 2,4,8,12>13
+  | 3 dup@20 > ssth 10, cwnd 13 > 10.
 CONGESTION / QOS
-
--   Equal RTT flows → equal shares; Reno biased to 1/RTT.
--   RED: avg queue length; min_th/max_th/max_p; early drop/mark; ECN; avoids
-    global sync.
--   Token bucket: rate r, depth β; burst ≤ β; long-term ≤ r; GCRA
-    TAT ← max(now,TAT)+L/r.
--   WFQ: per-flow finish-time order; weights = shares; Parekh–Gallager delay
-    bound.
--   IntServ/RSVP: per-flow state, hard guarantees, poor scaling.
--   DiffServ: DSCP at edge, PHB in core (EF voice, AF drop precedence),
-    scales.
--   MPLS: labels, TE, L3VPN.
-
-Newer TCP: Vegas (delay) · Westwood (bw estimate) · Compound (loss+delay) ·
-Hybla (RTT-normalized) · DCTCP (ECN fraction) · CUBIC (cubic time, Linux
-default) · BBR (bw + min RTT, loss-insensitive).
-
-------------------------------------------------------------------------------
-
-PROCEDURES
-
-Subnet: mask → AND = network; broadcast = host bits all 1; usable = 2^h − 2.
-Fragment: max payload = MTU − 20; offsets = cumulative/8; last MF=0. CRC:
-append r zeros → divide by G → remainder → append. Dijkstra: pick min
-unvisited → relax neighbors → repeat. Reno trace: mark slow start vs CA at
-ssthresh; on loss apply table; redraw sawtooth.
-
-------------------------------------------------------------------------------
-
+  AIMD; Reno throughput ~ 1/RTT. RED: avg queue, min_th/max_th/max_p,
+  early drop/mark. ECN marks instead of drops. Bufferbloat = big buffers.
+  Token bucket (r, beta): burst <= beta; GCRA TAT = max(now,TAT)+L/r.
+  WFQ finish-time order; Parekh-Gallager delay bound.
+  IntServ per-flow RSVP; DiffServ DSCP/PHB; MPLS labels.
+  Newer: Vegas delay | Westwood bw | Compound | Hybla | DCTCP ECN |
+  CUBIC t^3 | BBR bw+RTT.
 TRAPS
-
-1.  Propagation ≠ transmission.
-2.  min(cwnd, rwnd).
-3.  Fragment offset in 8-byte units.
-4.  Slow start is exponential.
-5.  Timeout → 1; 3 dup → halve.
-6.  ssthresh = half of current cwnd.
-7.  TCP counts bytes.
-8.  BGP = policy first.
-9.  Count-to-infinity = DV only.
-10. IPv6: no checksum, no router frag.
-11. RED ≠ scheduler.
-12. Token bucket bounds burst, not delay.
+  propagation != transmission | min(cwnd, rwnd) | offset/8 | slow start
+  exponential | timeout>1 vs 3 dup>halve | ssthresh = half current cwnd
+  | TCP counts bytes | BGP policy first | count-to-infinity DV only |
+  IPv6 no cksum/frag | RED != scheduler | token bucket bounds burst.
