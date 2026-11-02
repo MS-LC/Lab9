@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Computer Networks — One-Page Cheat Sheet</title>
+<style>
+  :root{
+    --ink:#16203a; --muted:#5e6a82; --line:#d9e0ec; --soft:#f4f6fb;
+    --blue:#2f6fed; --teal:#0f9d76; --amber:#b97600; --red:#c0392b;
+    --violet:#6b4fd8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:#e8ebf2; color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .toolbar{
+    position:fixed; top:16px; right:16px; z-index:10; display:flex; gap:8px; align-items:center;
+  }
+  .toolbar button{
+    font:inherit; font-size:13px; padding:8px 14px; border-radius:9px; cursor:pointer;
+    background:var(--blue); color:#fff; border:1px solid var(--blue);
+  }
+  .toolbar span{font-size:12px; color:#4d5a72; background:#fff; border:1px solid var(--line);
+    padding:6px 10px; border-radius:9px}
+
+  .sheet{
+    width:210mm; min-height:297mm; margin:24px auto; background:#fff;
+    padding:7mm 8mm 6mm; box-shadow:0 18px 50px rgba(20,30,60,.18);
+    font-size:7.9pt; line-height:1.27;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead{display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
+    border-bottom:2.5px solid var(--ink); padding-bottom:5px}
+  h1{margin:0; font-size:17pt; letter-spacing:-.02em; line-height:1.05}
+  .sub{font-size:8pt; color:var(--muted); margin-top:3px; letter-spacing:.02em}
+  .stamp{font-size:7pt; letter-spacing:.12em; text-transform:uppercase; color:#fff;
+    background:var(--ink); padding:3px 8px; border-radius:99px; white-space:nowrap}
+
+  /* ---------- layer strip ---------- */
+  .layers{display:flex; gap:4px; margin:5px 0 5px}
+  .layer{flex:1; border:1px solid var(--line); border-radius:6px; padding:2px 5px;
+    background:var(--soft); position:relative}
+  .layer b{display:block; font-size:7pt; letter-spacing:.05em; text-transform:uppercase; color:var(--ink)}
+  .layer i{display:block; font-style:normal; font-size:6.5pt; color:var(--muted); margin-top:0}
+  .layer:nth-child(1){border-top:3px solid var(--violet)}
+  .layer:nth-child(2){border-top:3px solid var(--blue)}
+  .layer:nth-child(3){border-top:3px solid var(--teal)}
+  .layer:nth-child(4){border-top:3px solid var(--amber)}
+  .layer:nth-child(5){border-top:3px solid var(--muted)}
+  .layer-note{font-size:6.6pt; color:var(--muted); margin:-2px 0 6px; text-align:right}
+
+  /* ---------- grid ---------- */
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:6px; align-items:start}
+  .col{display:flex; flex-direction:column; gap:6px}
+
+  section{border:1px solid var(--line); border-radius:7px; padding:4px 6px 5px; break-inside:avoid}
+  section h2{
+    margin:0 0 3px; font-size:7.2pt; letter-spacing:.09em; text-transform:uppercase;
+    display:flex; align-items:center; gap:5px; color:var(--ink);
+  }
+  section h2::before{content:""; width:7px; height:7px; border-radius:2px; background:var(--blue)}
+  section.ethernet h2::before{background:var(--amber)}
+  section.ip h2::before{background:var(--teal)}
+  section.routing h2::before{background:var(--violet)}
+  section.tcp h2::before{background:var(--blue)}
+  section.reno h2::before{background:var(--red)}
+  section.qos h2::before{background:var(--teal)}
+  section.procs h2::before{background:var(--muted)}
+  section.traps h2::before{background:var(--red)}
+  section.traps{border-color:#efc9c4; background:#fdf6f5}
+
+  p{margin:0 0 3px}
+  ul{margin:0; padding-left:11px}
+  li{margin:0 0 1.5px}
+  b,strong{font-weight:650}
+  code,.fx{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:7.1pt}
+  .k{color:var(--blue); font-weight:600}
+
+  /* ---------- formulas ---------- */
+  .formulas{display:grid; grid-template-columns:1fr 1fr; gap:1px 12px}
+  .formulas div{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+  /* ---------- numbers ---------- */
+  .nums{display:grid; grid-template-columns:auto 1fr; gap:0 6px; font-size:7.2pt}
+  .nums dt{font-weight:650; color:var(--muted); font-size:6.4pt; text-transform:uppercase; letter-spacing:.05em; padding-top:1px}
+  .nums dd{margin:0}
+
+  /* ---------- diagrams ---------- */
+  .diagram{display:block; width:100%; height:auto; margin:3px 0 2px}
+  .cap{font-size:6.6pt; color:var(--muted); text-align:center; margin-top:-1px; margin-bottom:2px}
+  .duo{display:flex; gap:6px; align-items:center}
+  .duo > div{flex:1}
+
+  /* fragmentation bars */
+  .frag{font-size:6.7pt; color:var(--muted); margin:2px 0 1px}
+  .fragbar{display:flex; gap:2px; margin-bottom:1px}
+  .fragbar span{height:9px; border-radius:2px; font-size:5.8pt; color:#fff; display:flex;
+    align-items:center; justify-content:center; overflow:hidden}
+  .fragbar .h{background:var(--teal)}
+  .fragbar .d{background:#9fd0c1}
+  .fraglabels{display:flex; gap:2px; font-size:5.8pt; color:var(--muted)}
+  .fraglabels span{text-align:center}
+
+  /* ---------- reno table ---------- */
+  table{border-collapse:collapse; width:100%; font-size:7.5pt}
+  th,td{text-align:left; padding:1.5px 4px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-size:6.6pt; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:600}
+  td:first-child{white-space:nowrap; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:7pt}
+  tr:last-child td{border-bottom:none}
+
+  .trace{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:6.6pt; color:var(--muted);
+    background:var(--soft); border-radius:4px; padding:2px 4px; margin-top:3px; line-height:1.35}
+
+  /* traps */
+  .traps ol{margin:0; padding-left:14px; columns:2; column-gap:10px; font-size:7.4pt}
+  .traps li{break-inside:avoid; margin-bottom:1px}
+
+  /* footer */
+  .foot{display:flex; justify-content:space-between; margin-top:5px; padding-top:3px;
+    border-top:1px solid var(--line); font-size:6.6pt; color:var(--muted)}
+
+  @media print{
+    @page{size:A4 portrait; margin:0}
+    body{background:#fff}
+    .toolbar{display:none}
+    .sheet{margin:0; box-shadow:none; width:210mm; min-height:297mm}
+    *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span>A4 · print at 100%</span>
+  <button onclick="window.print()">Print / Save PDF</button>
+</div>
+
+<div class="sheet">
+
+  <div class="masthead">
+    <div>
+      <h1>Computer Networks</h1>
+      <div class="sub">Exam cheat sheet · Dordal, <i>An Introduction to Computer Networks</i>, 2nd ed. · Ch. 1–25</div>
+    </div>
+    <div class="stamp">One page</div>
+  </div>
+
+  <div class="layers">
+    <div class="layer"><b>Application</b><i>HTTP · DNS · SMTP</i></div>
+    <div class="layer"><b>Transport</b><i>TCP · UDP</i></div>
+    <div class="layer"><b>Network</b><i>IP · ICMP · BGP</i></div>
+    <div class="layer"><b>Link</b><i>Ethernet · Wi-Fi</i></div>
+    <div class="layer"><b>Physical</b><i>1000BASE-T · radio</i></div>
+  </div>
+  <div class="layer-note">ARP sits on the L2/L3 boundary — it maps IP to MAC inside one LAN.</div>
+
+  <div class="grid">
+
+    <!-- ================= LEFT COLUMN ================= -->
+    <div class="col">
+
+      <section>
+        <h2>Formulas</h2>
+        <div class="formulas">
+          <div class="fx">d = L/C + dist/v + Q + P</div>
+          <div class="fx">BDP = C · RTT</div>
+          <div class="fx">U = 1/(1+2a)</div>
+          <div class="fx">a = T<sub>prop</sub>/T<sub>trans</sub></div>
+          <div class="fx">Thru = min(C, W·MSS/RTT)</div>
+          <div class="fx">W ≥ BDP/MSS</div>
+          <div class="fx">hosts = 2<sup>(32−n)</sup> − 2</div>
+          <div class="fx">offset = bytes / 8</div>
+          <div class="fx">RTO = SRTT + 4·RTTVAR</div>
+          <div class="fx">cwnd ≈ √(3/2p)</div>
+          <div class="fx">Thru ≈ 1.22·MSS/(RTT√p)</div>
+          <div class="fx">delay ≤ β/(C−r)</div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Numbers</h2>
+        <dl class="nums">
+          <dt>Ethernet</dt><dd>64 B min frame (46 B payload) · 1518 B max (1500 payload) · slot 512 bit-times</dd>
+          <dt>Headers</dt><dd>IPv4 20 B · TCP 20 B · UDP 8 B · IPv6 40 B · MSS 1460</dd>
+          <dt>Timers</dt><dd>TIME_WAIT = 2 MSL · α = 1/8, β = 1/4 · cwnd₀ = 1 MSS (modern 10)</dd>
+          <dt>Ports</dt><dd>53 DNS · 67/68 DHCP · 69 TFTP · 161/162 SNMP · 179 BGP · 520 RIP</dd>
+          <dt>Protocol</dt><dd>1 ICMP · 6 TCP · 17 UDP · 89 OSPF</dd>
+        </dl>
+      </section>
+
+      <section class="ethernet">
+        <h2>Ethernet &amp; LAN</h2>
+        <ul>
+          <li><b>CSMA/CD:</b> sense → send → collision → abort → backoff in [0, 2<sup>min(n,10)</sup>−1] slots.</li>
+          <li><b>64 B minimum</b> so the sender is still transmitting when a worst-case collision returns.</li>
+          <li><b>Switch:</b> learn src→port, forward known unicast, flood unknown/broadcast, age out. Splits collision domains, not broadcast.</li>
+          <li><b>VLAN</b> 12-bit tag; trunks carry tagged frames. <b>STP:</b> root = lowest ID, block redundant links.</li>
+          <li><b>Wi-Fi:</b> CSMA/CA (cannot detect collisions while sending) + ACK after SIFS; RTS/CTS for hidden terminals.</li>
+        </ul>
+      </section>
+
+      <section class="ip">
+        <h2>IP &amp; companions</h2>
+        <p><b>Header:</b> Ver · IHL · DSCP/ECN · Len · ID · Flags · FragOff · TTL · Proto · Cksum · Src · Dst. TTL drops per hop; checksum covers the header only.</p>
+        <p><b>Addresses:</b> private 10/8, 172.16/12, 192.168/16 · loopback 127/8 · link-local 169.254/16 · multicast 224/4. Forward by <b>longest-prefix match</b>.</p>
+
+        <div class="frag">Fragmentation — 4000 B over MTU 1500 (offsets in 8-byte units)</div>
+        <div class="fragbar">
+          <span class="h" style="flex:1480">20+1480</span>
+          <span class="d" style="flex:1480">1480</span>
+          <span class="d" style="flex:1020">1020</span>
+        </div>
+        <div class="fraglabels">
+          <span style="flex:1480">offset 0 · MF 1</span>
+          <span style="flex:1480">offset 185 · MF 1</span>
+          <span style="flex:1020">offset 370 · MF 0</span>
+        </div>
+
+        <p style="margin-top:3px"><b>Frag:</b> MF=0 on last, reassemble only at destination; DF → ICMP → PMTUD. <b>NAT</b> rewrites IP:port. <b>ARP</b> IP→MAC in LAN. <b>DHCP</b> = DORA. <b>ICMP</b> errors, no ports. <b>DNS</b> UDP/53.</p>
+        <p><b>IPv6:</b> 128-bit, 40 B header, <b>no checksum, no router fragmentation</b>; NDP replaces ARP; SLAAC.</p>
+      </section>
+
+      <section class="routing">
+        <h2>Routing</h2>
+        <ul>
+          <li><b>DV:</b> <span class="fx">D<sub>x</sub>(y) = min(c + D<sub>v</sub>(y))</span>. Count-to-infinity → split horizon, poisoned reverse, triggered updates, path vector.</li>
+          <li><b>LS:</b> flood LSAs → topology → Dijkstra. Fast, loop-free. ECMP hashes flows.</li>
+          <li><b>CIDR:</b> any prefix length, longest match; aggregate contiguous blocks.</li>
+          <li><b>BGP</b> TCP/179: LOCAL_PREF → AS_PATH → ORIGIN → MED → eBGP &gt; iBGP → IGP cost → router ID.</li>
+          <li><b>AS_PATH</b> loop detection · valley-free (no free transit) · anycast.</li>
+        </ul>
+      </section>
+
+      <section class="procs">
+        <h2>Procedure steps</h2>
+        <ul>
+          <li><b>Subnet:</b> mask → AND = network; broadcast = host bits all 1; usable <span class="fx">2<sup>h</sup> − 2</span>.</li>
+          <li><b>Fragment:</b> max payload = MTU − 20; offset = cumulative ÷ 8; last MF = 0.</li>
+          <li><b>CRC:</b> append r zeros → divide by G → append remainder. <b>Dijkstra:</b> min unvisited → relax → repeat.</li>
+        </ul>
+      </section>
+
+    </div>
+
+    <!-- ================= RIGHT COLUMN ================= -->
+    <div class="col">
+
+      <section class="tcp">
+        <h2>TCP</h2>
+
+        <svg class="diagram" viewBox="0 0 300 96" role="img" aria-label="TCP three-way handshake">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#2f6fed"/>
+            </marker>
+          </defs>
+          <line x1="62" y1="10" x2="62" y2="88" stroke="#9aa6bd" stroke-width="1.2"/>
+          <line x1="238" y1="10" x2="238" y2="88" stroke="#9aa6bd" stroke-width="1.2"/>
+          <rect x="34" y="0" width="56" height="13" rx="3" fill="#eef3ff" stroke="#b9ccf5"/>
+          <text x="62" y="9.5" font-size="8" text-anchor="middle" fill="#2f6fed" font-family="system-ui">Client</text>
+          <rect x="210" y="0" width="56" height="13" rx="3" fill="#eef3ff" stroke="#b9ccf5"/>
+          <text x="238" y="9.5" font-size="8" text-anchor="middle" fill="#2f6fed" font-family="system-ui">Server</text>
+          <line x1="66" y1="26" x2="230" y2="38" stroke="#2f6fed" stroke-width="1.4" marker-end="url(#ar)"/>
+          <text x="150" y="27" font-size="7.5" text-anchor="middle" fill="#16203a" font-family="ui-monospace,monospace">SYN (x)</text>
+          <line x1="234" y1="50" x2="70" y2="62" stroke="#0f9d76" stroke-width="1.4" marker-end="url(#ar2)"/>
+          <defs>
+            <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#0f9d76"/>
+            </marker>
+          </defs>
+          <text x="150" y="52" font-size="7.5" text-anchor="middle" fill="#16203a" font-family="ui-monospace,monospace">SYN (y) + ACK(x+1)</text>
+          <line x1="66" y1="74" x2="230" y2="84" stroke="#2f6fed" stroke-width="1.4" marker-end="url(#ar)"/>
+          <text x="150" y="76" font-size="7.5" text-anchor="middle" fill="#16203a" font-family="ui-monospace,monospace">ACK (y+1)</text>
+        </svg>
+        <div class="cap">Three-way handshake — random ISNs; seq counts bytes, not segments</div>
+
+        <ul>
+          <li><b>Header:</b> sport · dport · seq · ack · offset · flags · window · checksum · urgent · options. Flags: URG ACK PSH RST SYN FIN.</li>
+          <li>Window = <span class="fx">min(cwnd, rwnd)</span>; <b>TIME_WAIT</b> = 2 MSL.</li>
+          <li><b>Nagle:</b> one small unacked segment. <b>Delayed ACK</b> ~200 ms — the two interact badly. <b>Silly window:</b> Clark + Nagle + persist.</li>
+          <li><b>Karn:</b> no RTT sample on retransmits; double RTO on timeout.</li>
+        </ul>
+      </section>
+
+      <section class="reno">
+        <h2>Reno — four rules</h2>
+
+        <svg class="diagram" viewBox="0 0 320 104" role="img" aria-label="Reno congestion window sawtooth">
+          <line x1="24" y1="8" x2="24" y2="96" stroke="#9aa6bd" stroke-width="1"/>
+          <line x1="24" y1="96" x2="312" y2="96" stroke="#9aa6bd" stroke-width="1"/>
+          <text x="8" y="52" font-size="7" fill="#5e6a82" transform="rotate(-90 8 52)" text-anchor="middle" font-family="system-ui">cwnd</text>
+          <text x="300" y="103" font-size="7" fill="#5e6a82" text-anchor="end" font-family="system-ui">time</text>
+          <line x1="24" y1="42" x2="312" y2="42" stroke="#c0392b" stroke-width=".9" stroke-dasharray="3 3" opacity=".65"/>
+          <text x="236" y="39" font-size="6.5" fill="#c0392b" font-family="system-ui">ssthresh</text>
+          <path d="M26 95 C 34 95, 40 70, 45 42" fill="none" stroke="#2f6fed" stroke-width="1.8"/>
+          <path d="M45 42 L 84 26 L 86 55 L 112 43 L 114 67 L 140 54 L 142 76 L 166 64 L 168 82 L 190 72 L 192 88 L 212 80 L 214 92" fill="none" stroke="#2f6fed" stroke-width="1.8" stroke-linejoin="round"/>
+          <circle cx="86" cy="55" r="2.2" fill="#c0392b"/>
+          <circle cx="114" cy="67" r="2.2" fill="#c0392b"/>
+          <circle cx="142" cy="76" r="2.2" fill="#c0392b"/>
+          <text x="60" y="18" font-size="6.5" fill="#2f6fed" font-family="system-ui">slow start</text>
+          <text x="176" y="24" font-size="6.5" fill="#2f6fed" font-family="system-ui">congestion avoidance</text>
+        </svg>
+        <div class="cap">AIMD sawtooth — double in slow start, +1 MSS/RTT in avoidance, halve on loss</div>
+
+        <table>
+          <tr><th>Event</th><th>Action</th></tr>
+          <tr><td>cwnd &lt; ssthresh</td><td>+1 MSS per ACK → doubles per RTT</td></tr>
+          <tr><td>cwnd ≥ ssthresh</td><td>+1 MSS per RTT</td></tr>
+          <tr><td>timeout</td><td>ssthresh = cwnd/2, cwnd = 1</td></tr>
+          <tr><td>3 dup (Tahoe)</td><td>ssthresh = cwnd/2, cwnd = 1</td></tr>
+          <tr><td>3 dup (Reno)</td><td>ssthresh = cwnd/2, cwnd = ssthresh+3, inflate; new ACK → ssthresh</td></tr>
+        </table>
+        <div class="trace">1→2→4→8→16→17 · timeout@24 → ssth 12, cwnd 1 → 2,4,8,12→13 · 3 dup@20 → ssth 10, cwnd 13 → 10</div>
+      </section>
+
+      <section class="qos">
+        <h2>Congestion &amp; QoS</h2>
+
+        <div class="duo">
+          <div>
+            <ul>
+              <li><b>AIMD</b>; Reno throughput ∝ 1/RTT.</li>
+              <li><b>RED:</b> average queue, min_th/max_th/max_p, early drop or mark.</li>
+              <li><b>ECN</b> marks instead of dropping; big buffers cause <b>bufferbloat</b>.</li>
+              <li><b>Token bucket (r, β):</b> burst ≤ β; GCRA <span class="fx">TAT ← max(now,TAT)+L/r</span>.</li>
+              <li><b>WFQ</b> finish-time order; Parekh–Gallager delay bound.</li>
+              <li><b>IntServ</b> per-flow RSVP · <b>DiffServ</b> DSCP/PHB · <b>MPLS</b> labels.</li>
+            </ul>
+          </div>
+          <div style="flex:0 0 42%">
+            <svg class="diagram" viewBox="0 0 190 108" role="img" aria-label="Token bucket shaping burst traffic">
+              <rect x="78" y="4" width="12" height="14" fill="#c9d4e6"/>
+              <rect x="74" y="16" width="20" height="4" rx="1" fill="#8fa2c0"/>
+              <circle cx="84" cy="26" r="2.4" fill="#2f6fed"/>
+              <circle cx="84" cy="33" r="2.4" fill="#2f6fed" opacity=".45"/>
+              <path d="M52 40 L134 40 L126 96 L60 96 Z" fill="#f4f8ff" stroke="#2f6fed" stroke-width="1.3"/>
+              <circle cx="74" cy="78" r="4" fill="#2f6fed" opacity=".25"/>
+              <circle cx="90" cy="80" r="4" fill="#2f6fed" opacity=".25"/>
+              <circle cx="106" cy="78" r="4" fill="#2f6fed" opacity=".25"/>
+              <circle cx="82" cy="66" r="4" fill="#2f6fed" opacity=".25"/>
+              <circle cx="98" cy="66" r="4" fill="#2f6fed" opacity=".25"/>
+              <line x1="134" y1="72" x2="176" y2="72" stroke="#0f9d76" stroke-width="1.6"/>
+              <path d="M176 72 l-6 -3 v6 z" fill="#0f9d76"/>
+              <text x="150" y="66" font-size="6.5" fill="#0f9d76" text-anchor="middle" font-family="system-ui">≤ C</text>
+              <text x="88" y="34" font-size="6.5" fill="#5e6a82" font-family="system-ui">rate r</text>
+              <text x="93" y="88" font-size="6.5" fill="#5e6a82" font-family="system-ui">depth β</text>
+              <text x="8" y="60" font-size="6.5" fill="#16203a" font-family="system-ui">tokens</text>
+            </svg>
+            <div class="cap">Token bucket: sustained r, burst β</div>
+          </div>
+        </div>
+
+        <p style="margin-top:2px"><b>Newer TCP:</b> Vegas delay · Westwood bw · Compound · Hybla · DCTCP ECN · CUBIC t³ · BBR bw + min RTT.</p>
+      </section>
+
+      <section class="traps">
+        <h2>Top traps</h2>
+        <ol>
+          <li>Propagation ≠ transmission.</li>
+          <li>Window = min(cwnd, rwnd).</li>
+          <li>Fragment offset is in 8-byte units.</li>
+          <li>Slow start is exponential.</li>
+          <li>Timeout → cwnd 1; 3 dup → halve.</li>
+          <li>ssthresh = half of current cwnd.</li>
+          <li>TCP counts bytes, not segments.</li>
+          <li>BGP picks policy first.</li>
+          <li>Count-to-infinity is DV-only.</li>
+          <li>IPv6: no checksum, no router frag.</li>
+          <li>RED manages queues, not scheduling.</li>
+          <li>Token bucket bounds burst, not delay.</li>
+        </ol>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>Formulas assume no queueing/processing unless stated · β = bucket depth, C = link rate</span>
+    <span>Ch. 1–25 · SNMP, security, labs excluded</span>
+  </div>
+
+</div>
+</body>
+</html>
